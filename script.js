@@ -59,4 +59,51 @@ function generateEvents(startDate, months = 3) {
 
   for (let i = 0; i < months * 4; i++) {
     const monday = getMonday(date);
-    const dutyText = getDutyFor
+    const dutyText = getDutyForWeek(monday);
+
+    // dutyText が空ならスキップ（担当がいない週）
+    if (!dutyText) {
+      date.setDate(date.getDate() + 7);
+      continue;
+    }
+
+    // ① 月曜に名前を表示するイベント
+    events.push({
+      title: dutyText,
+      start: monday,
+      allDay: true,
+      display: "block"
+    });
+
+    // ② 月曜〜金曜の背景帯イベント（担当週だけ）
+    const friday = new Date(monday);
+    friday.setDate(monday.getDate() + 4); // 月曜 +4日 = 金曜
+
+    events.push({
+      start: monday,
+      end: new Date(friday.getFullYear(), friday.getMonth(), friday.getDate() + 1),
+      display: "background",
+      color: "#a3c8ff" // 青い帯
+    });
+
+    // 次の週へ
+    date.setDate(date.getDate() + 7);
+  }
+
+  return events;
+}
+
+
+// ====== カレンダー初期化 ======
+document.addEventListener("DOMContentLoaded", function () {
+  const calendarEl = document.getElementById("calendar");
+
+  const calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: "dayGridMonth",
+    locale: "ja",
+    firstDay: 1, // 月曜始まり
+    events: generateEvents(new Date())
+  });
+
+  calendar.render();
+});
