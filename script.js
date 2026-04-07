@@ -20,7 +20,7 @@ function getWeeksSinceStart(date) {
 function getDutyForWeek(date) {
   const weekIndex = getWeeksSinceStart(date);
 
-  // ★ 永続ループが正しく動くように補正
+  // 永続ループ補正
   const personIndex = ((weekIndex % members.length) + members.length) % members.length;
   const person = members[personIndex];
 
@@ -35,45 +35,38 @@ function getMonday(d) {
   return date;
 }
 
-// 今日の週の月曜
-const today = new Date();
-const thisMonday = getMonday(today);
-
 
 // ====== イベント生成 ======
 
-function generateEvents(startDate, months = 12) {  // ★ 12か月分に拡大
+function generateEvents(startDate, months = 12) {  // ← 1年分生成
   const events = [];
   const date = new Date(startDate);
 
-  for (let i = 0; i < months * 4; i++) {  // 1か月=4週として計算
+  for (let i = 0; i < months * 4; i++) {
     const monday = getMonday(date);
     const dutyText = getDutyForWeek(monday);
 
-    // ① 毎週の月曜に担当者名を表示（全週）
+    // ① 毎週の月曜に担当者名を表示
     events.push({
       title: dutyText,
       start: monday,
       allDay: true,
-      display: "block",
-      classNames: (monday.getTime() === thisMonday.getTime()) ? ["this-week-duty"] : []
+      display: "block"
     });
 
-    // ② 今週だけ青い帯を出す
-    if (monday.getTime() === thisMonday.getTime()) {
-      const friday = new Date(monday);
-      friday.setDate(monday.getDate() + 4);
+    // ② 毎週の月曜〜金曜に青帯をかける（シンプル版）
+    const friday = new Date(monday);
+    friday.setDate(monday.getDate() + 4);
 
-      const saturday = new Date(friday);
-      saturday.setDate(friday.getDate() + 1);
+    const saturday = new Date(friday);
+    saturday.setDate(friday.getDate() + 1);
 
-      events.push({
-        start: monday,
-        end: saturday,
-        display: "background",
-        color: "#a3c8ff"
-      });
-    }
+    events.push({
+      start: monday,
+      end: saturday,
+      display: "background",
+      color: "#a3c8ff"
+    });
 
     // 次の週へ
     date.setDate(date.getDate() + 7);
@@ -92,7 +85,7 @@ document.addEventListener("DOMContentLoaded", function () {
     initialView: "dayGridMonth",
     locale: "ja",
     firstDay: 1,
-    events: generateEvents(new Date(), 12)  // ★ 12か月分生成
+    events: generateEvents(new Date(), 12)
   });
 
   calendar.render();
