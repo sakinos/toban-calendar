@@ -35,11 +35,9 @@ function getMonday(d) {
   return date;
 }
 
-// 今日の週の月曜〜金曜を計算
+// 今日の週の月曜〜金曜
 const today = new Date();
 const thisMonday = getMonday(today);
-const thisFriday = new Date(thisMonday);
-thisFriday.setDate(thisMonday.getDate() + 4);
 
 
 // ====== イベント生成 ======
