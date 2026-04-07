@@ -20,7 +20,7 @@ function getWeeksSinceStart(date) {
 function getDutyForWeek(date) {
   const weekIndex = getWeeksSinceStart(date);
 
-  // 永続ループ補正
+  // 永続ループ補正（負の週でも正しく回る）
   const personIndex = ((weekIndex % members.length) + members.length) % members.length;
   const person = members[personIndex];
 
@@ -42,7 +42,7 @@ function generateEvents(startDate, months = 12) {  // ← 1年分生成
   const events = [];
   const date = new Date(startDate);
 
-  for (let i = 0; i < months * 4; i++) {
+  for (let i = 0; i < months * 4; i++) {  // 1か月=4週として計算
     const monday = getMonday(date);
     const dutyText = getDutyForWeek(monday);
 
@@ -54,12 +54,17 @@ function generateEvents(startDate, months = 12) {  // ← 1年分生成
       display: "block"
     });
 
-    // ② 毎週の月曜〜金曜に青帯をかける（シンプル版）
+    // ② 毎週の月曜〜金曜に青帯をかける（絶対にズレない安定版）
     const friday = new Date(monday);
-    friday.setDate(monday.getDate() + 4);
+    friday.setDate(monday.getDate() + 4); // 月曜 +4 = 金曜
 
-    const saturday = new Date(friday);
-    saturday.setDate(friday.getDate() + 1);
+    // ★ 土曜 0:00 を end にする（FullCalendar は end の前日まで塗る）
+    const saturday = new Date(
+      friday.getFullYear(),
+      friday.getMonth(),
+      friday.getDate() + 1,
+      0, 0, 0
+    );
 
     events.push({
       start: monday,
@@ -85,7 +90,7 @@ document.addEventListener("DOMContentLoaded", function () {
     initialView: "dayGridMonth",
     locale: "ja",
     firstDay: 1,
-    events: generateEvents(new Date(), 12)
+    events: generateEvents(new Date(), 12)  // ← 1年分生成
   });
 
   calendar.render();
