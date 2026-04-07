@@ -12,3 +12,9 @@ h1 {
   max-width: 900px;
   margin: 0 auto;
 }
+.this-week-duty {
+  background-color: #ffeb99 !important; /* 明るい黄色 */
+  border: 2px solid #e0b800 !important;
+  font-weight: bold;
+  color: #333;
+}
