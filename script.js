@@ -79,11 +79,15 @@ function generateEvents(startDate, months = 3) {
     const friday = new Date(monday);
     friday.setDate(monday.getDate() + 4); // 月曜 +4日 = 金曜
 
+    // FullCalendar は end を「翌日の0時」と解釈するため
+    const saturday = new Date(friday);
+    saturday.setDate(friday.getDate() + 1);
+
     events.push({
       start: monday,
-      end: new Date(friday.getFullYear(), friday.getMonth(), friday.getDate() + 1),
+      end: saturday,   // ← 土曜0時までにすることで金曜まで帯がかかる
       display: "background",
-      color: "#a3c8ff" // 青い帯
+      color: "#a3c8ff"
     });
 
     // 次の週へ
