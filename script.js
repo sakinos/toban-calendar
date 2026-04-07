@@ -19,12 +19,12 @@ function getWeeksSinceStart(date) {
 
 function getDutyForWeek(date) {
   const weekIndex = getWeeksSinceStart(date);
-  return duties
-    .map((duty, i) => {
-      const person = members[(weekIndex + i) % members.length];
-      return `${duty}: ${person}`;
-    })
-    .join("\n");
+
+  // ★ 永続ループが正しく動くように補正
+  const personIndex = ((weekIndex % members.length) + members.length) % members.length;
+  const person = members[personIndex];
+
+  return `担当: ${person}`;
 }
 
 function getMonday(d) {
@@ -42,15 +42,15 @@ const thisMonday = getMonday(today);
 
 // ====== イベント生成 ======
 
-function generateEvents(startDate, months = 3) {
+function generateEvents(startDate, months = 12) {  // ★ 12か月分に拡大
   const events = [];
   const date = new Date(startDate);
 
-  for (let i = 0; i < months * 4; i++) {
+  for (let i = 0; i < months * 4; i++) {  // 1か月=4週として計算
     const monday = getMonday(date);
     const dutyText = getDutyForWeek(monday);
 
-    // ① 毎週の月曜に担当者名を表示
+    // ① 毎週の月曜に担当者名を表示（全週）
     events.push({
       title: dutyText,
       start: monday,
@@ -92,7 +92,7 @@ document.addEventListener("DOMContentLoaded", function () {
     initialView: "dayGridMonth",
     locale: "ja",
     firstDay: 1,
-    events: generateEvents(new Date())
+    events: generateEvents(new Date(), 12)  // ★ 12か月分生成
   });
 
   calendar.render();
