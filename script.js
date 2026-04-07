@@ -1,40 +1,24 @@
 // ====== 設定エリア ======
 
-// メンバー（ここを書き換えるだけで人数変更OK）
 const members = [
-  "宮本",
-  "菊永",
-  "梅田",
-  "葛西",
-  "小泉",
-  "武",
-  "豊嶋",
-  "高畑",
-  "野口",
-  "堀",
-  "まき",
-  "山崎"
+  "宮本", "菊永", "梅田", "葛西", "小泉", "武",
+  "豊嶋", "高畑", "野口", "堀", "まき", "山崎"
 ];
 
-// 当番の種類
 const duties = ["担当"];
 
-// ローテーションの基準日
 const rotationStartDate = new Date("2026-04-01");
 
 
 // ====== ロジック部分 ======
 
-// 基準日からの経過週数
 function getWeeksSinceStart(date) {
   const diff = date - rotationStartDate;
   return Math.floor(diff / (1000 * 60 * 60 * 24 * 7));
 }
 
-// 指定週の当番名を取得
 function getDutyForWeek(date) {
   const weekIndex = getWeeksSinceStart(date);
-
   return duties
     .map((duty, i) => {
       const person = members[(weekIndex + i) % members.length];
@@ -43,16 +27,23 @@ function getDutyForWeek(date) {
     .join("\n");
 }
 
-// 月曜の日付を取得
 function getMonday(d) {
   const date = new Date(d);
   const day = date.getDay();
-  const diff = (day === 0 ? -6 : 1) - day; // 日曜なら -6
+  const diff = (day === 0 ? -6 : 1) - day;
   date.setDate(date.getDate() + diff);
   return date;
 }
 
-// カレンダーイベント生成
+// 今日の週の月曜〜金曜を計算
+const today = new Date();
+const thisMonday = getMonday(today);
+const thisFriday = new Date(thisMonday);
+thisFriday.setDate(thisMonday.getDate() + 4);
+
+
+// ====== イベント生成 ======
+
 function generateEvents(startDate, months = 3) {
   const events = [];
   const date = new Date(startDate);
@@ -61,13 +52,7 @@ function generateEvents(startDate, months = 3) {
     const monday = getMonday(date);
     const dutyText = getDutyForWeek(monday);
 
-    // dutyText が空ならスキップ（担当がいない週）
-    if (!dutyText) {
-      date.setDate(date.getDate() + 7);
-      continue;
-    }
-
-    // ① 月曜に名前を表示するイベント
+    // ① 毎週の月曜に担当者名を表示
     events.push({
       title: dutyText,
       start: monday,
@@ -75,20 +60,21 @@ function generateEvents(startDate, months = 3) {
       display: "block"
     });
 
-    // ② 月曜〜金曜の背景帯イベント（担当週だけ）
-    const friday = new Date(monday);
-    friday.setDate(monday.getDate() + 4); // 月曜 +4日 = 金曜
+    // ② 今日の週だけ青い帯を出す
+    if (monday.getTime() === thisMonday.getTime()) {
+      const friday = new Date(monday);
+      friday.setDate(monday.getDate() + 4);
 
-    // FullCalendar は end を「翌日の0時」と解釈するため
-    const saturday = new Date(friday);
-    saturday.setDate(friday.getDate() + 1);
+      const saturday = new Date(friday);
+      saturday.setDate(friday.getDate() + 1);
 
-    events.push({
-      start: monday,
-      end: saturday,   // ← 土曜0時までにすることで金曜まで帯がかかる
-      display: "background",
-      color: "#a3c8ff"
-    });
+      events.push({
+        start: monday,
+        end: saturday,
+        display: "background",
+        color: "#a3c8ff"
+      });
+    }
 
     // 次の週へ
     date.setDate(date.getDate() + 7);
@@ -99,13 +85,14 @@ function generateEvents(startDate, months = 3) {
 
 
 // ====== カレンダー初期化 ======
+
 document.addEventListener("DOMContentLoaded", function () {
   const calendarEl = document.getElementById("calendar");
 
   const calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: "dayGridMonth",
     locale: "ja",
-    firstDay: 1, // 月曜始まり
+    firstDay: 1,
     events: generateEvents(new Date())
   });
 
