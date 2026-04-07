@@ -17,7 +17,7 @@ const members = [
 ];
 
 // 当番の種類
-const duties = ["掃除", "ゴミ出し"];
+const duties = ["担当"];
 
 // ローテーションの基準日
 const rotationStartDate = new Date("2026-04-01");
