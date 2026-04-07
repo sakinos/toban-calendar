@@ -35,7 +35,7 @@ function getMonday(d) {
   return date;
 }
 
-// 今日の週の月曜〜金曜
+// 今日の週の月曜
 const today = new Date();
 const thisMonday = getMonday(today);
 
@@ -55,10 +55,11 @@ function generateEvents(startDate, months = 3) {
       title: dutyText,
       start: monday,
       allDay: true,
-      display: "block"
+      display: "block",
+      classNames: (monday.getTime() === thisMonday.getTime()) ? ["this-week-duty"] : []
     });
 
-    // ② 今日の週だけ青い帯を出す
+    // ② 今週だけ青い帯を出す
     if (monday.getTime() === thisMonday.getTime()) {
       const friday = new Date(monday);
       friday.setDate(monday.getDate() + 4);
