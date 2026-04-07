@@ -16,22 +16,22 @@ const members = [
   "山崎"
 ];
 
-// 当番の種類（必要に応じて増やせる）
-const duties = ["担当"];
+// 当番の種類
+const duties = ["掃除", "ゴミ出し"];
 
-// ローテーションの基準日（ここから何週経ったかで順番を決める）
-const rotationStartDate = new Date("2026-04-01");
+// ローテーションの基準日
+const rotationStartDate = new Date("2024-01-01");
 
 
 // ====== ロジック部分 ======
 
-// 基準日からの経過週数を計算
+// 基準日からの経過週数
 function getWeeksSinceStart(date) {
   const diff = date - rotationStartDate;
   return Math.floor(diff / (1000 * 60 * 60 * 24 * 7));
 }
 
-// 指定日の週の当番を取得
+// 指定週の当番名を取得
 function getDutyForWeek(date) {
   const weekIndex = getWeeksSinceStart(date);
 
@@ -43,25 +43,50 @@ function getDutyForWeek(date) {
     .join("\n");
 }
 
-// カレンダーに表示するイベントを生成
+// 月曜の日付を取得
+function getMonday(d) {
+  const date = new Date(d);
+  const day = date.getDay();
+  const diff = (day === 0 ? -6 : 1) - day; // 日曜なら -6
+  date.setDate(date.getDate() + diff);
+  return date;
+}
+
+// カレンダーイベント生成
 function generateEvents(startDate, months = 3) {
   const events = [];
   const date = new Date(startDate);
 
   for (let i = 0; i < months * 4; i++) {
-    const dutyText = getDutyForWeek(date);
+    const monday = getMonday(date);
+    const dutyText = getDutyForWeek(monday);
 
+    // ① 月曜に名前を表示するイベント
     events.push({
       title: dutyText,
-      start: new Date(date),
-      allDay: true
+      start: monday,
+      allDay: true,
+      display: "block"
     });
 
-    date.setDate(date.getDate() + 7); // 1週間進める
+    // ② 月曜〜日曜の背景帯イベント
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+
+    events.push({
+      start: monday,
+      end: new Date(sunday.getFullYear(), sunday.getMonth(), sunday.getDate() + 1),
+      display: "background",
+      color: "#a3c8ff" // 青い帯
+    });
+
+    // 次の週へ
+    date.setDate(date.getDate() + 7);
   }
 
   return events;
 }
+
 
 // ====== カレンダー初期化 ======
 document.addEventListener("DOMContentLoaded", function () {
@@ -70,6 +95,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: "dayGridMonth",
     locale: "ja",
+    firstDay: 1, // 月曜始まり
     events: generateEvents(new Date())
   });
 
