@@ -17,10 +17,10 @@ const members = [
 ];
 
 // 当番の種類
-const duties = ["担当"];
+const duties = ["掃除", "ゴミ出し"];
 
 // ローテーションの基準日
-const rotationStartDate = new Date("2024-01-01");
+const rotationStartDate = new Date("2026-04-01");
 
 
 // ====== ロジック部分 ======
@@ -59,45 +59,4 @@ function generateEvents(startDate, months = 3) {
 
   for (let i = 0; i < months * 4; i++) {
     const monday = getMonday(date);
-    const dutyText = getDutyForWeek(monday);
-
-    // ① 月曜に名前を表示するイベント
-    events.push({
-      title: dutyText,
-      start: monday,
-      allDay: true,
-      display: "block"
-    });
-
-    // ② 月曜〜日曜の背景帯イベント
-    const sunday = new Date(monday);
-    sunday.setDate(monday.getDate() + 6);
-
-    events.push({
-      start: monday,
-      end: new Date(sunday.getFullYear(), sunday.getMonth(), sunday.getDate() + 1),
-      display: "background",
-      color: "#a3c8ff" // 青い帯
-    });
-
-    // 次の週へ
-    date.setDate(date.getDate() + 7);
-  }
-
-  return events;
-}
-
-
-// ====== カレンダー初期化 ======
-document.addEventListener("DOMContentLoaded", function () {
-  const calendarEl = document.getElementById("calendar");
-
-  const calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: "dayGridMonth",
-    locale: "ja",
-    firstDay: 1, // 月曜始まり
-    events: generateEvents(new Date())
-  });
-
-  calendar.render();
-});
+    const dutyText = getDutyFor
