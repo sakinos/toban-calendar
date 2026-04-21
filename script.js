@@ -7,7 +7,7 @@ const members = [
 
 const duties = ["担当"];
 
-const rotationStartDate = new Date("2026-04-06");
+const rotationStartDate = new Date("2026-04-13");
 
 
 // ====== ロジック部分 ======
